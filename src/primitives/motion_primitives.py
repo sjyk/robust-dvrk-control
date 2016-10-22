@@ -191,7 +191,7 @@ def exec_primitive_list(primtive_list, arm, list_of_args, strict=True):
 		except:
 			execution_sucess = False
 
-			print "Unexpected error:", sys.exc_info()[0]
+			print "Unexpected error:", sys.exc_info()
 
 			if strict:
 				raise ValueError("Failure At Primitive " + str(primitive))
