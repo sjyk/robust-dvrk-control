@@ -137,6 +137,30 @@ def movep(arm, new_position=None, new_orientation=None, zoffset=0, speed=0.01):
 	arm.move_cartesian_frame_linear_interpolation(frame, speed)
 
 
+def grab_gauze(arm, 
+			   grab_position=[-0.0595334141556, 0.0276314586913, -0.0449098218402], 
+			   grab_orientation=[0.345611491009, 0.730964210858, 0.247331968443, -0.533920328432 ],
+			   sleep=2,
+			   down_position=0.01):
+    """
+    Fixed motion for grabbing gauze with an arm.
+    position: 
+    """
+    tfx_pose = tfx.pose(grab_position, grab_orientation)
+    arm.move_cartesian_frame(tfx_pose)
+    arm.open_gripper(80)
+    time.sleep(sleep)
+    grab_position[2] -= down_position
+    tfx_pose = tfx.pose(grab_position, grab_orientation)
+    arm.move_cartesian_frame(tfx_pose)
+    arm.open_gripper(-30)
+    time.sleep(sleep)
+    grab_position[2] += down_position
+    tfx_pose = tfx.pose(grab_position, grab_orientation)
+    arm.move_cartesian_frame(tfx_pose)
+    time.sleep(sleep)
+
+
 def exec_primitive(primitive, arm, args_dict):
 	"""
 	Executes one of the primitives in this file on the described arm with the parameters
