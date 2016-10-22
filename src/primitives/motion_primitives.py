@@ -23,7 +23,6 @@ def get_frame_ang(pos, nextpos, zoffset=0.003, angle=None):
     """
     Given two x,y,z coordinates, output a TFX pose that points the grippers to roughly the next position, at pos.
     """
-    pos[2] -= zoffset
     rotation = [94.299363207+angle, -4.72728031036, 86.1958002688]
     rot = tfx.tb_angles(rotation[0], rotation[1], rotation[2])
     frame = tfx.pose(pos, rot)
@@ -33,7 +32,6 @@ def get_frame_next(pos, nextpos, zoffset=0.003, angle=None):
     """
     Given two x,y,z coordinates, output a TFX pose that points the grippers to roughly the next position, at pos.
     """
-    pos[2] -= zoffset
     rotation = [94.299363207+angle, -4.72728031036, 86.1958002688]
     rot = tfx.tb_angles(rotation[0], rotation[1], rotation[2])
     frame = tfx.pose(nextpos, rot)
@@ -101,29 +99,30 @@ def cut(arm, closed_angle=1.0, open_angle=80.0, close_time=2.5, open_time=2.35):
     arm.open_gripper(open_angle)
     time.sleep(open_time)
 
-
 def movedc(arm, new_position=None, zoffset=0, speed=0.01):
-	"""
-	Moves the arm along a directionality contrained path such that the gripper is
-	in the direction of movement
-	"""
-	if new_position == None:
-		raise ValueError("New position cannot be null")
+    """
+    Moves the arm along a directionality contrained path such that the gripper is
+    in the direction of movement
+    """
 
-	if speed >= 0.06:
-		raise ValueError("Speed is above what is safe")
+    if new_position == None:
+        raise ValueError("New position cannot be null")
 
-	pos = arm.get_current_cartesian_position().position
-	angle = get_angle(np.ravel(pos), np.ravel(new_position))
+    if speed >= 0.06:
+        raise ValueError("Speed is above what is safe")
 
-	frame = get_frame_ang(np.ravel(pos), np.ravel(new_position), zoffset=zoffset, angle = angle)
-	arm.move_cartesian_frame_linear_interpolation(frame, speed)
+    new_position_np = np.ravel(new_position) + np.array([0,0, zoffset])
 
-	frame = get_frame_next(np.ravel(pos), np.ravel(new_position), zoffset=zoffset, angle = angle)
-	arm.move_cartesian_frame_linear_interpolation(frame, speed)
+    pos = arm.get_current_cartesian_position().position
+    angle = get_angle(np.ravel(pos), np.ravel(new_position))
+
+    frame = get_frame_ang(np.ravel(pos), new_position_np, zoffset=zoffset, angle = angle)
+    arm.move_cartesian_frame_linear_interpolation(frame, speed)
+    frame = get_frame_next(np.ravel(pos), new_position_np, zoffset=zoffset, angle = angle)
+    arm.move_cartesian_frame_linear_interpolation(frame, speed)
 
 
-def movep(arm, new_position=None, new_orientation=None, zoffset=0, speed=0.01):
+def movep(arm, new_position=None, new_orientation=None, speed=0.01):
 	"""
 	Moves the arm along along a linear path between the two points
 	"""

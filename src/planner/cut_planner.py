@@ -51,7 +51,7 @@ class CutPlanner(object):
 		self.waypoints = pts
 
 
-	def generatePlan(self, arm, phantom=False):
+	def generatePlan(self, arm, airCut=True):
 		"""
 		Generates a set of primitives that can be executed
 		"""
@@ -61,10 +61,10 @@ class CutPlanner(object):
 		init_position = arm.get_current_cartesian_position().position
 		init_rot = arm.get_current_cartesian_position().rotation
 
-		if phantom:
-			zoffset = 0.003
-		else:
-			zoffset = 0
+		zoffset = 0
+
+		if not airCut:
+			zoffset = -0.01
 
 		for i in range(self.waypoints.shape[0]-1):
 
@@ -73,7 +73,7 @@ class CutPlanner(object):
 				args.append({'new_position': self.waypoints[i,:], 'new_orientation': init_rot})
 			else:
 				plan.append(movedc)
-				args.append({'new_position': self.waypoints[i,:]})
+				args.append({'new_position': self.waypoints[i,:], 'zoffset': zoffset})
 			
 			plan.append(cut)
 			args.append({})

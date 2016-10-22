@@ -16,7 +16,7 @@ if __name__ == '__main__':
 
     c = CutPlanner()
     c.loadWaypoints()
-    plan = c.generatePlan(psm1, phantom=True)
+    plan = c.generatePlan(psm1, airCut=False)
     exec_primitive_list(plan[0], psm1, plan[1])
 
     #print psm1.get_current_cartesian_position().position
